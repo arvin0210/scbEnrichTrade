@@ -30,6 +30,7 @@ public class TradingService {
 
     public void saveProducts(MultipartFile file) throws Exception {
         productRepository.deleteAll();
+        List<Product> products = new ArrayList<>();
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
                 String line;
@@ -39,9 +40,10 @@ public class TradingService {
                         Product p = new Product();
                         p.setProduct_id(Integer.parseInt(data[0]));
                         p.setProduct_name(data[1]);
-                        productRepository.save(p);
+                        products.add(p);
                     }
                 }
+                productRepository.saveAll(products);
             }
         } catch (IOException ex) {
             logger.error("Failed to parse CSV file " + ex);
@@ -51,6 +53,7 @@ public class TradingService {
 
     public void saveTrades(MultipartFile file) throws Exception {
         tradeRepository.deleteAll();
+        List<Product> products = new ArrayList<>();
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
                 String line;
@@ -67,9 +70,10 @@ public class TradingService {
                             throw new Exception("Invalid Product ID : " + data[1]);
                         }
                         p.addTrade(t);
-                        productRepository.save(p);
+                        products.add(p);
                     }
                 }
+                productRepository.saveAll(products);
             }
         } catch (IOException ex) {
             logger.error("Failed to parse CSV file " + ex);
