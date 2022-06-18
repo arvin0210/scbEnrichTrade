@@ -26,7 +26,7 @@ public class TradeController {
     @PostMapping(value = "/product_update", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json")
     public ResponseEntity updateProducts(@RequestParam("product.csv")MultipartFile file) throws Exception {
         service.saveProducts(file);
-        return ResponseEntity.status(HttpStatus.RESET_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping(value = "/enrich", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "text/csv")

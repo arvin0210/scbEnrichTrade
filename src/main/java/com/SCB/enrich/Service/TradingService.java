@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.transaction.Transactional;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class TradingService {
     Logger logger = (Logger) LoggerFactory.getLogger(TradingService.class);
 
@@ -36,7 +38,7 @@ public class TradingService {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
-                    if (!data[0].contains("product_id")) {
+                    if (isInteger(data[0])) {
                         Product p = new Product();
                         p.setProduct_id(Integer.parseInt(data[0]));
                         p.setProduct_name(data[1]);
@@ -52,14 +54,15 @@ public class TradingService {
     }
 
     public void saveTrades(MultipartFile file) throws Exception {
-        tradeRepository.deleteAll();
+        deleteAllTrades();
+
         List<Product> products = new ArrayList<>();
         try {
             try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
-                    if (!data[0].contains("date")) {
+                    if (isInteger(data[0]) && isInteger(data[1]) && isDouble(data[3])) {
                         Trade t = new Trade();
                         t.setDate(new SimpleDateFormat("yyyyMMdd").parse(data[0]));
                         t.setCurrency(data[2]);
@@ -109,5 +112,26 @@ public class TradingService {
         }
         printWriter.close();
         return csvFile;
+    }
+
+    public boolean isInteger(String value) {
+        boolean returnValue = true;
+        if (null == new org.apache.commons.validator.routines.IntegerValidator().validate(value)) {
+            returnValue = false;
+        }
+        return returnValue;
+    }
+
+    public boolean isDouble(String value) {
+        boolean returnValue = true;
+        if (null == new org.apache.commons.validator.routines.CurrencyValidator().validate(value)) {
+            returnValue = false;
+        }
+        return returnValue;
+    }
+
+    public void deleteAllTrades() {
+        // clear previous trade records
+        tradeRepository.deleteAllInBatch();
     }
 }
