@@ -33,8 +33,9 @@ public class TradingService {
     public void saveProducts(MultipartFile file) throws Exception {
         productRepository.deleteAll();
         List<Product> products = new ArrayList<>();
+        InputStreamReader reader = new InputStreamReader(file.getInputStream());
         try {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            try (BufferedReader br = new BufferedReader(reader)) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
@@ -45,6 +46,8 @@ public class TradingService {
                         products.add(p);
                     }
                 }
+                br.close();
+                reader.close();
                 productRepository.saveAll(products);
             }
         } catch (IOException ex) {
@@ -57,8 +60,9 @@ public class TradingService {
         deleteAllTrades();
 
         List<Product> products = new ArrayList<>();
+        InputStreamReader reader = new InputStreamReader(file.getInputStream());
         try {
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            try (BufferedReader br = new BufferedReader(reader)) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
@@ -76,6 +80,8 @@ public class TradingService {
                         products.add(p);
                     }
                 }
+                br.close();
+                reader.close();
                 productRepository.saveAll(products);
             }
         } catch (IOException ex) {
