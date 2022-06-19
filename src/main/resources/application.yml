@@ -8,6 +8,10 @@ spring:
     username: sa
     password: 1234
     driver-class-name: org.h2.Driver
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
 
 server:
   port: 9191
