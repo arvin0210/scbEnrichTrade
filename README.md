@@ -1,10 +1,19 @@
 # scbEnrichTrade
 Interview Coding Challenge
 
+# Software Architecture
+Built software based on SOLID Principles
+- SRP Single Responsibility
+- Open Closed
+- Liskov Substitution
+- Interface Segregation
+- Dependency Inverse of Control
+
+
 ```bash
 java -jar scbTrade.jar
 ```
-to run compiled project
+You may run the compiled package using above to run
 
 ### API Request URL
 - POST: http://localhost:9191/v1/product_update to initialize product Id & name. Needs product.csv as RequestBody

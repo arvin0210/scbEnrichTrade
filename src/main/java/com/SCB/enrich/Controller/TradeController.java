@@ -1,5 +1,6 @@
 package com.SCB.enrich.Controller;
 
+import com.SCB.enrich.File.FileServiceImpl;
 import com.SCB.enrich.Service.TradingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -21,18 +22,21 @@ import java.io.FileInputStream;
 @RequestMapping("/v1")
 public class TradeController {
     @Autowired
-    private TradingService service;
+    private TradingService tradingService;
+
+    @Autowired
+    private FileServiceImpl fileService;
 
     @PostMapping(value = "/product_update", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "application/json")
     public ResponseEntity updateProducts(@RequestParam("product.csv")MultipartFile file) throws Exception {
-        service.saveProducts(file);
+        tradingService.saveProducts(file);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @PostMapping(value = "/enrich", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = "text/csv")
     public ResponseEntity<Resource> enrichTrades(@RequestParam("trade.csv")MultipartFile file) throws Exception {
-        service.saveTrades(file);
-        File enrichCSV = service.enrichCsvFile();
+        tradingService.saveTrades(file);
+        File enrichCSV = fileService.downloadEnrichCSV();
         InputStreamResource resource = new InputStreamResource(new FileInputStream(enrichCSV));
 
         HttpHeaders headers = new HttpHeaders();

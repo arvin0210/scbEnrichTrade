@@ -5,6 +5,7 @@ import com.SCB.enrich.Entity.Trade;
 import com.SCB.enrich.Entity.TradeDto;
 import com.SCB.enrich.Repository.ProductRepository;
 import com.SCB.enrich.Repository.TradeRepository;
+import com.SCB.enrich.Utility.UtilityServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class TradingService {
     @Autowired
     TradeRepository tradeRepository;
 
+    @Autowired
+    UtilityServiceImpl utilService;
+
     public void saveProducts(MultipartFile file) throws Exception {
         productRepository.deleteAll();
         List<Product> products = new ArrayList<>();
@@ -39,7 +43,7 @@ public class TradingService {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
-                    if (isInteger(data[0])) {
+                    if (utilService.isInteger(data[0])) {
                         Product p = new Product();
                         p.setProduct_id(Integer.parseInt(data[0]));
                         p.setProduct_name(data[1]);
@@ -66,7 +70,7 @@ public class TradingService {
                 String line;
                 while ((line = br.readLine()) != null) {
                     String[] data = line.split(",");
-                    if (isInteger(data[0]) && isInteger(data[1]) && isDouble(data[3])) {
+                    if (utilService.isInteger(data[0]) && utilService.isInteger(data[1]) && utilService.isDouble(data[3])) {
                         Trade t = new Trade();
                         t.setDate(new SimpleDateFormat("yyyyMMdd").parse(data[0]));
                         t.setCurrency(data[2]);
@@ -88,52 +92,6 @@ public class TradingService {
             logger.error("Failed to parse CSV file " + ex);
             throw new Exception("Failed to parse CSV file {}", ex);
         }
-    }
-
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
-    }
-
-    public List<Trade> findAllTrades() {
-        return tradeRepository.findAll();
-    }
-
-    public List<TradeDto> findAllTrades_DTO() {
-        List<TradeDto> dtoList = new ArrayList<>();
-        List<Trade> all = tradeRepository.findAll();
-        DateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-        for (Trade trade : all) {
-            TradeDto dto = new TradeDto(formatter.format(trade.getDate()), trade.getProduct().getProduct_name(), trade.getCurrency(), trade.getPrice());
-            dtoList.add(dto);
-        }
-        return dtoList;
-    }
-
-    public File enrichCsvFile() throws FileNotFoundException {
-        File csvFile = new File("enrich.csv");
-        PrintWriter printWriter = new PrintWriter(csvFile);
-        printWriter.write("date,product_name,currency,price\n");
-        for (TradeDto dto : findAllTrades_DTO()) {
-            printWriter.write(dto.getDate() + "," + dto.getProduct_name() + "," + dto.getCurrency() + "," + dto.getPrice() + "\n");
-        }
-        printWriter.close();
-        return csvFile;
-    }
-
-    public boolean isInteger(String value) {
-        boolean returnValue = true;
-        if (null == new org.apache.commons.validator.routines.IntegerValidator().validate(value)) {
-            returnValue = false;
-        }
-        return returnValue;
-    }
-
-    public boolean isDouble(String value) {
-        boolean returnValue = true;
-        if (null == new org.apache.commons.validator.routines.CurrencyValidator().validate(value)) {
-            returnValue = false;
-        }
-        return returnValue;
     }
 
     public void deleteAllTrades() {
